@@ -8,7 +8,9 @@ from utils import generate_id
 
 app = FastAPI()
 
-items: list[Item] = [Item(id=i, name=f"Item-{i}", quantity=randint(0, 20)) for i in range(1, 51)]
+items: list[Item] = [
+    Item(id=i, name=f"Item-{i}", quantity=randint(0, 20), company_id=randint(1, 5)) for i in range(1, 51)
+]
 
 
 @app.get("/")
@@ -74,6 +76,25 @@ async def delete_item(item_id: int):
             del items[index]
             return
     raise HTTPException(status_code=404, detail="Item not found")
+
+
+@app.get("/companies/{company_id}/items", response_model=list[Item])
+def get_company_items(company_id: int, query: Annotated[ItemQuery, Query()]):
+    company_items = [item for item in items if item.company_id == company_id]
+    sorted_items = sorted(company_items, key=lambda item: getattr(item, query.order_by))
+    return sorted_items[query.offset : query.offset + query.limit]
+
+
+@app.get("/companies/{company_id}/items/{item_id}", response_model=Item)
+def find_company_item(company_id: int, item_id: int):
+    item = [
+        exsisted_item
+        for exsisted_item in items
+        if exsisted_item.company_id == company_id and exsisted_item.id == item_id
+    ]
+    if len(item) > 0:
+        return item[0]
+    raise HTTPException(status_code=404, detail="Company item not found")
 
 
 if __name__ == "__main__":

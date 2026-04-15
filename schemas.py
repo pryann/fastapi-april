@@ -3,20 +3,20 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 
-class Item(BaseModel):
-    id: int
-    name: str
-    quantity: int
-
-
 class ItemCreate(BaseModel):
     name: str
     quantity: int
+    company_id: int
+
+
+class Item(ItemCreate):
+    id: int
 
 
 class ItemPartialUpdate(BaseModel):
     name: str | None = None
     quantity: int | None = None
+    company_id: int | None = None
 
 
 class ItemQuery(BaseModel):
