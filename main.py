@@ -1,34 +1,14 @@
-from fastapi import FastAPI, HTTPException, status
-from pydantic import BaseModel
+from random import randint
+from typing import Annotated
+
+from fastapi import FastAPI, HTTPException, Query, status
+
+from schemas import Item, ItemCreate, ItemPartialUpdate, ItemQuery
+from utils import generate_id
 
 app = FastAPI()
 
-
-class Item(BaseModel):
-    id: int
-    name: str
-    quantity: int
-
-
-class ItemCreate(BaseModel):
-    name: str
-    quantity: int
-
-
-class ItemPartialUpdate(BaseModel):
-    name: str | None = None
-    quantity: int | None = None
-
-
-items: list[Item] = [
-    Item(id=1, name="Item1", quantity=10),
-    Item(id=2, name="Item2", quantity=5),
-    Item(id=3, name="Item3", quantity=2),
-]
-
-
-def generate_id():
-    return max([existing_item.id for existing_item in items], default=0) + 1
+items: list[Item] = [Item(id=i, name=f"Item-{i}", quantity=randint(0, 20)) for i in range(1, 51)]
 
 
 @app.get("/")
@@ -37,8 +17,9 @@ def read_root():
 
 
 @app.get("/items", response_model=list[Item])
-def get_items():
-    return items
+def get_items(query: Annotated[ItemQuery, Query()]):
+    sorted_items = sorted(items, key=lambda item: getattr(item, query.order_by))
+    return sorted_items[query.offset : query.offset + query.limit]
 
 
 @app.get("/items/{item_id}", response_model=Item)
@@ -56,7 +37,7 @@ def create_item(item: ItemCreate):
     # actual_max = max(ids) if ids else 0
     # new_id = actual_max + 1
     # use a separeted function to generate the new id, to avoid code duplication
-    new_id = generate_id()
+    new_id = generate_id(items)
     new_item = Item(id=new_id, **item.model_dump())
     items.append(new_item)
     # it can be problematic, if the dataset not updated

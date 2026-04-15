@@ -5,7 +5,12 @@ meta {
 }
 
 get {
-  url: {{host}}/items
+  url: {{host}}/items?offset=-10&limit=10
   body: none
   auth: none
+}
+
+params:query {
+  offset: -10
+  limit: 10
 }

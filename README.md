@@ -5,6 +5,11 @@
 - ruff
 - uv
 - fastapi
+  
+## Other
+
+- [https://mockaroo.com/](https://mockaroo.com/)
+- [https://chocolatey.org/](https://chocolatey.org/)
 
 ## Commands
 - install uv: `powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"`
