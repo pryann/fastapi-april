@@ -1,0 +1,18 @@
+meta {
+  name: New HTTP Request
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/items
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "New item",
+    "quantity": 1
+  }
+}
